@@ -102,10 +102,13 @@ Output is a single markdown table plus a 1-2 sentence summary:
 | **Pylint** | score/10, N issues | score/10, N issues |
 | **Complexity** | CC, MI | CC, MI |
 
-## Known limitations / open items
-
-- **`function_name` isn't auto-detected yet** — it's currently passed in by hand. Options considered: have LLM 1 also return the function name, or auto-detect it from `original_code` via Python's `ast` module (viable as long as each input is a single top-level function).
-- **No single script wires LLM 1 → LLM 2 end-to-end yet.** They've been tested independently; connecting them is a matter of calling `evaluate()` with LLM 1's actual output instead of the hardcoded demo values in `agent.py`'s `__main__` block.
-- **Only tested on a handful of simple functions so far** (list summation, duplicate-finding). Worth running through something with recursion, string processing, or nested loops before considering this validated broadly.
-- **The free-tier model is not perfectly reliable at tool calling.** It has been observed retrying a malformed tool call successfully, and — before the system prompt was tightened — calling a tool more times than instructed. Worth keeping an eye on whether it follows the "exactly once, in this order" sequencing consistently across different inputs.
-- **OpenRouter's free tier is rate-limited.** Repeated evaluations in quick succession may get throttled.
+## Project Status — Ongoing
+ 
+This is an active, in-progress project. The core pipeline (LLM 1 → LLM 2 → 5 evaluation tools) is built and each piece has been individually tested and verified working, but the following remains before it's a complete, end-to-end system:
+ 
+- [ ] **Auto-detect `function_name`** instead of passing it in by hand. Under consideration: have LLM 1 also return the function name alongside `code`, or auto-detect it from `original_code` via Python's `ast` module (viable as long as each input is a single top-level function).
+- [ ] **Connect LLM 1 → LLM 2 into one pipeline script.** Both stages work and have been tested independently; the remaining step is calling `evaluate()` with LLM 1's actual output in place of the hardcoded demo values currently in `agent.py`'s `__main__` block.
+- [ ] **Broaden test coverage beyond simple functions.** Validated so far on list summation and duplicate-finding — needs testing against recursion, string processing, and nested-loop code before it can be considered reliable across problem types.
+- [ ] **Monitor and improve tool-calling reliability of the evaluation model.** The current free-tier model (`nex-agi/nex-n2.5-pro:free`) has needed a retry after a malformed tool call, and — before the system prompt was tightened — called a tool more times than instructed. Continuing to watch whether it holds to the "exactly once, in this order" sequencing across different inputs, with a switch to a more capable model as a fallback if it doesn't.
+- [ ] **Plan around OpenRouter's free-tier rate limits**, since repeated evaluations run in quick succession may get throttled.
+ 
